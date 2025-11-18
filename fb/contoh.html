@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Telco Next Best Offer Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg: #0f172a;
+      --bg-soft: #111827;
+      --bg-softer: #020617;
+      --accent: #38bdf8;
+      --accent-soft: rgba(56, 189, 248, 0.15);
+      --accent-strong: #0ea5e9;
+      --text-main: #e5e7eb;
+      --text-muted: #9ca3af;
+      --border-subtle: #1f2937;
+      --danger: #f97373;
+      --radius-lg: 16px;
+      --radius-md: 10px;
+      --shadow-soft: 0 20px 45px rgba(0, 0, 0, 0.55);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #1e293b 0, #020617 55%, #020617 100%);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .app-shell {
+      display: grid;
+      grid-template-columns: 260px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    @media (max-width: 900px) {
+      .app-shell {
+        grid-template-columns: minmax(0, 1fr);
+      }
+      .sidebar {
+        position: static;
+        border-right: none;
+        border-bottom: 1px solid var(--border-subtle);
+      }
+    }
+
+    .sidebar {
+      background: linear-gradient(to bottom, #020617, #020617);
+      border-right: 1px solid var(--border-subtle);
+      padding: 20px 18px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .logo-mark {
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 0, #e0f2fe 0, #0ea5e9 35%, #020617 100%);
+      box-shadow: 0 0 0 1px #0ea5e9, 0 12px 28px rgba(15, 23, 42, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+      color: #f9fafb;
+    }
+
+    .logo-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .logo-text span:first-child {
+      font-size: 13px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .logo-text span:last-child {
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .sidebar-section-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .14em;
+      color: var(--text-muted);
+      margin: 14px 2px 6px;
+    }
+
+    .filter-card {
+      margin-top: 6px;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-subtle);
+      padding: 14px 14px 12px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .filter-group {
+      margin-bottom: 10px;
+    }
+
+    .filter-group:last-child {
+      margin-bottom: 0;
+    }
+
+    label {
+      display: block;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .13em;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    input[type="text"],
+    select {
+      width: 100%;
+      background: #020617;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      padding: 7px 10px;
+      font-size: 13px;
+      color: var(--text-main);
+      outline: none;
+      transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+    }
+
+    input[type="text"]:focus,
+    select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.5);
+      background: #020617;
+    }
+
+    .range-inline {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2px 9px;
+      border-radius: 999px;
+      background: rgba(148, 163, 184, 0.12);
+      color: var(--text-muted);
+      font-size: 11px;
+      margin-top: 3px;
+    }
+
+    .chip strong {
+      color: var(--accent);
+    }
+
+    .reset-btn {
+      margin-top: 10px;
+      width: 100%;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 12px;
+      padding: 6px 0;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: background 0.16s ease, border-color 0.16s ease, color 0.16s ease;
+    }
+
+    .reset-btn:hover {
+      background: rgba(148, 163, 184, 0.08);
+      color: #e5e7eb;
+      border-color: rgba(148, 163, 184, 0.8);
+    }
+
+    .main {
+      padding: 18px 22px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    @media (max-width: 600px) {
+      .main {
+        padding-inline: 14px;
+      }
+    }
+
+    .main-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-size: 20px;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    .title-block p {
+      margin: 4px 0 0;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .badge {
+      font-size: 11px;
+      padding: 3px 9px;
+      border-radius: 999px;
+      border: 1px solid var(--accent-strong);
+      color: var(--accent-strong);
+      background: rgba(56, 189, 248, 0.08);
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    @media (max-width: 1100px) {
+      .stats-row {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 640px) {
+      .stats-row {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .stat-card {
+      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.14), rgba(15, 23, 42, 0.9));
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(15, 23, 42, 0.9);
+      padding: 10px 12px;
+      box-shadow: var(--shadow-soft);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      color: var(--text-muted);
+    }
+
+    .stat-value {
+      margin-top: 6px;
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .stat-sub {
+      margin-top: 2px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .stat-accent-badge {
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      font-size: 10px;
+      padding: 3px 7px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      color: var(--accent);
+    }
+
+    .layout-main {
+      display: grid;
+      grid-template-columns: minmax(0, 2.2fr) minmax(260px, 1.1fr);
+      gap: 14px;
+      align-items: flex-start;
+    }
+
+    @media (max-width: 1040px) {
+      .layout-main {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .panel {
+      background: rgba(15, 23, 42, 0.92);
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(15, 23, 42, 0.95);
+      box-shadow: var(--shadow-soft);
+      padding: 10px 12px 12px;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    .panel-title {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      color: var(--text-muted);
+    }
+
+    .panel-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .table-container {
+      max-height: 360px;
+      overflow: auto;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-subtle);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      background: #020617;
+    }
+
+    thead {
+      position: sticky;
+      top: 0;
+      background: #020617;
+      z-index: 1;
+    }
+
+    th,
+    td {
+      padding: 7px 8px;
+      white-space: nowrap;
+      text-align: left;
+    }
+
+    th {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border-subtle);
+      background: #020617;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid rgba(15, 23, 42, 0.9);
+      cursor: pointer;
+      transition: background 0.13s ease;
+    }
+
+    tbody tr:nth-child(odd) {
+      background: rgba(15, 23, 42, 0.82);
+    }
+
+    tbody tr:nth-child(even) {
+      background: rgba(15, 23, 42, 0.95);
+    }
+
+    tbody tr:hover {
+      background: rgba(56, 189, 248, 0.15);
+    }
+
+    tbody tr.active {
+      background: rgba(56, 189, 248, 0.22);
+    }
+
+    .pill {
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .pill.plan-prepaid {
+      border-color: #22c55e;
+      color: #4ade80;
+    }
+
+    .pill.plan-postpaid {
+      border-color: #f97316;
+      color: #fdba74;
+    }
+
+    .pill-offer {
+      border-color: var(--accent-strong);
+      color: var(--accent);
+      background: rgba(56, 189, 248, 0.08);
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 8px;
+      font-size: 12px;
+    }
+
+    .detail-item {
+      background: #020617;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-subtle);
+      padding: 6px 8px;
+    }
+
+    .detail-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+
+    .detail-value {
+      font-size: 13px;
+    }
+
+    .detail-value strong {
+      color: var(--accent);
+    }
+
+    .chart-bar-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-top: 4px;
+      font-size: 11px;
+    }
+
+    .chart-bar {
+      height: 6px;
+      border-radius: 999px;
+      background: rgba(30, 64, 175, 0.7);
+      overflow: hidden;
+    }
+
+    .chart-bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(to right, var(--accent), var(--accent-strong));
+      width: 0;
+      transition: width 0.25s ease-out;
+    }
+
+    .empty-state {
+      padding: 14px 10px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+  </style>
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-mark">N</div>
+      <div class="logo-text">
+        <span>Next Best Offer</span>
+        <span>Telco Recommender</span>
+      </div>
+    </div>
+
+    <div class="sidebar-section-title">Filters</div>
+    <div class="filter-card">
+      <div class="filter-group">
+        <label for="searchId">Search Customer ID</label>
+        <input id="searchId" type="text" placeholder="e.g. C00001" />
+      </div>
+
+      <div class="filter-group">
+        <label for="planType">Plan Type</label>
+        <select id="planType">
+          <option value="">All</option>
+          <option value="Prepaid">Prepaid</option>
+          <option value="Postpaid">Postpaid</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="minSpend">Monthly Spend (min-max)</label>
+        <div class="range-inline">
+          <input id="minSpend" type="text" placeholder="min" />
+          <input id="maxSpend" type="text" placeholder="max" />
+        </div>
+        <div class="chip">
+          Active filter: <strong><span id="spendFilterText">none</span></strong>
+        </div>
+      </div>
+
+      <button class="reset-btn" id="resetFilters">
+        <span>Reset filters</span>
+      </button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="main-header">
+      <div class="title-block">
+        <h1>Customer Behavior Dashboard</h1>
+        <p>Static mockup for Next Best Offer recommender using telco behavior dataset.</p>
+      </div>
+      <div>
+        <span class="badge">
+          Case: AC-01
+        </span>
+      </div>
+    </header>
+
+    <section class="stats-row" id="statsRow">
+      <div class="stat-card">
+        <div class="stat-label">Customers</div>
+        <div class="stat-value" id="statCustomers">0</div>
+        <div class="stat-sub">Total records in current view</div>
+        <div class="stat-accent-badge">Overview</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Average Monthly Spend</div>
+        <div class="stat-value" id="statAvgSpend">-</div>
+        <div class="stat-sub">Across filtered customers</div>
+        <div class="stat-accent-badge">Spend</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Top Offer</div>
+        <div class="stat-value" id="statTopOffer">-</div>
+        <div class="stat-sub">Most recommended target_offer</div>
+        <div class="stat-accent-badge">Offer</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Avg Video Usage</div>
+        <div class="stat-value" id="statAvgVideo">-</div>
+        <div class="stat-sub">Mean pct_video_usage</div>
+        <div class="stat-accent-badge">Behavior</div>
+      </div>
+    </section>
+
+    <section class="layout-main">
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">Customer Table</div>
+            <div class="panel-sub">
+              Click a row to inspect details on the right.
+            </div>
+          </div>
+        </div>
+
+        <div class="table-container" id="tableContainer">
+          <table>
+            <thead>
+            <tr>
+              <th>ID</th>
+              <th>Plan</th>
+              <th>Device</th>
+              <th>Data GB</th>
+              <th>Video %</th>
+              <th>Calls (min)</th>
+              <th>SMS</th>
+              <th>Spend</th>
+              <th>Top-up</th>
+              <th>Complaints</th>
+              <th>Offer</th>
+            </tr>
+            </thead>
+            <tbody id="customerTableBody">
+            <!-- Rows injected by JS -->
+            </tbody>
+          </table>
+        </div>
+        <div class="empty-state" id="emptyState" style="display:none;">
+          No customers match the current filter. Try adjusting filters on the left.
+        </div>
+      </section>
+
+      <aside class="panel">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">Customer Detail</div>
+            <div class="panel-sub" id="detailSubtitle">
+              Select a row in the table to see detailed behavior and offer.
+            </div>
+          </div>
+        </div>
+
+        <div id="detailContent" style="display:none;">
+          <div class="detail-grid">
+            <div class="detail-item">
+              <div class="detail-label">Customer</div>
+              <div class="detail-value" id="detailCustomerId"></div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">Plan Type</div>
+              <div class="detail-value" id="detailPlanType"></div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">Device Brand</div>
+              <div class="detail-value" id="detailDeviceBrand"></div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">Offer</div>
+              <div class="detail-value" id="detailOffer"></div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">Data Usage (GB)</div>
+              <div class="detail-value" id="detailDataUsage"></div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">Video Usage</div>
+              <div class="detail-value" id="detailVideoUsage"></div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">Avg Call Duration</div>
+              <div class="detail-value" id="detailCallDuration"></div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">SMS Frequency</div>
+              <div class="detail-value" id="detailSmsFreq"></div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">Monthly Spend</div>
+              <div class="detail-value" id="detailMonthlySpend"></div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">Top-up Frequency</div>
+              <div class="detail-value" id="detailTopupFreq"></div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">Travel Score</div>
+              <div class="detail-value" id="detailTravelScore"></div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">Complaint Count</div>
+              <div class="detail-value" id="detailComplaintCount"></div>
+            </div>
+          </div>
+
+          <div style="margin-top:10px;">
+            <div class="detail-label">Offer Distribution (current filter)</div>
+            <div id="offerBars" class="chart-bar-row"></div>
+          </div>
+        </div>
+      </aside>
+    </section>
+  </main>
+</div>
+
+<script>
+  // Mock dataset (you can later replace with dynamic data fetch)
+  const DATA = [
+    {
+      customer_id: "C00001",
+      plan_type: "Prepaid",
+      device_brand: "Realme",
+      avg_data_usage_gb: 1.5,
+      pct_video_usage: 0.8041460263,
+      avg_call_duration: 7.98,
+      sms_freq: 13,
+      monthly_spend: 70000.0,
+      topup_freq: 4,
+      travel_score: 0.2844189968,
+      complaint_count: 0,
+      target_offer: "General Offer"
+    },
+    {
+      customer_id: "C00002",
+      plan_type: "Postpaid",
+      device_brand: "Samsung",
+      avg_data_usage_gb: 9.2,
+      pct_video_usage: 0.65,
+      avg_call_duration: 14.1,
+      sms_freq: 5,
+      monthly_spend: 250000.0,
+      topup_freq: 0,
+      travel_score: 0.52,
+      complaint_count: 1,
+      target_offer: "Video Booster"
+    },
+    {
+      customer_id: "C00003",
+      plan_type: "Prepaid",
+      device_brand: "Xiaomi",
+      avg_data_usage_gb: 5.7,
+      pct_video_usage: 0.42,
+      avg_call_duration: 6.3,
+      sms_freq: 30,
+      monthly_spend: 120000.0,
+      topup_freq: 6,
+      travel_score: 0.15,
+      complaint_count: 0,
+      target_offer: "Social Media Pack"
+    },
+    {
+      customer_id: "C00004",
+      plan_type: "Prepaid",
+      device_brand: "Oppo",
+      avg_data_usage_gb: 12.4,
+      pct_video_usage: 0.88,
+      avg_call_duration: 3.2,
+      sms_freq: 8,
+      monthly_spend: 210000.0,
+      topup_freq: 5,
+      travel_score: 0.74,
+      complaint_count: 2,
+      target_offer: "Unlimited Pack"
+    },
+    {
+      customer_id: "C00005",
+      plan_type: "Postpaid",
+      device_brand: "iPhone",
+      avg_data_usage_gb: 15.8,
+      pct_video_usage: 0.75,
+      avg_call_duration: 22.0,
+      sms_freq: 2,
+      monthly_spend: 450000.0,
+      topup_freq: 0,
+      travel_score: 0.63,
+      complaint_count: 1,
+      target_offer: "Premium Bundle"
+    }
+  ];
+
+  const state = {
+    filtered: [...DATA],
+    activeCustomerId: null
+  };
+
+  const els = {
+    searchId: document.getElementById("searchId"),
+    planType: document.getElementById("planType"),
+    minSpend: document.getElementById("minSpend"),
+    maxSpend: document.getElementById("maxSpend"),
+    spendFilterText: document.getElementById("spendFilterText"),
+    resetFilters: document.getElementById("resetFilters"),
+    statCustomers: document.getElementById("statCustomers"),
+    statAvgSpend: document.getElementById("statAvgSpend"),
+    statTopOffer: document.getElementById("statTopOffer"),
+    statAvgVideo: document.getElementById("statAvgVideo"),
+    tableBody: document.getElementById("customerTableBody"),
+    emptyState: document.getElementById("emptyState"),
+    detailSubtitle: document.getElementById("detailSubtitle"),
+    detailContent: document.getElementById("detailContent"),
+    detailCustomerId: document.getElementById("detailCustomerId"),
+    detailPlanType: document.getElementById("detailPlanType"),
+    detailDeviceBrand: document.getElementById("detailDeviceBrand"),
+    detailOffer: document.getElementById("detailOffer"),
+    detailDataUsage: document.getElementById("detailDataUsage"),
+    detailVideoUsage: document.getElementById("detailVideoUsage"),
+    detailCallDuration: document.getElementById("detailCallDuration"),
+    detailSmsFreq: document.getElementById("detailSmsFreq"),
+    detailMonthlySpend: document.getElementById("detailMonthlySpend"),
+    detailTopupFreq: document.getElementById("detailTopupFreq"),
+    detailTravelScore: document.getElementById("detailTravelScore"),
+    detailComplaintCount: document.getElementById("detailComplaintCount"),
+    offerBars: document.getElementById("offerBars")
+  };
+
+  function formatCurrency(value) {
+    if (isNaN(value)) return "-";
+    return "Rp " + value.toLocaleString("id-ID", { maximumFractionDigits: 0 });
+  }
+
+  function formatPercentage(value) {
+    if (isNaN(value)) return "-";
+    return (value * 100).toFixed(1) + "%";
+  }
+
+  function applyFilters() {
+    const idQuery = els.searchId.value.trim().toLowerCase();
+    const plan = els.planType.value;
+    const minSpendVal = parseFloat(els.minSpend.value.replace(",", "."));
+    const maxSpendVal = parseFloat(els.maxSpend.value.replace(",", "."));
+
+    let filtered = DATA.filter(row => {
+      if (idQuery && !row.customer_id.toLowerCase().includes(idQuery)) return false;
+      if (plan && row.plan_type !== plan) return false;
+      if (!isNaN(minSpendVal) && row.monthly_spend < minSpendVal) return false;
+      if (!isNaN(maxSpendVal) && row.monthly_spend > maxSpendVal) return false;
+      return true;
+    });
+
+    state.filtered = filtered;
+    updateSpendFilterText(minSpendVal, maxSpendVal);
+    renderTable();
+    updateStats();
+    if (filtered.length === 0) {
+      state.activeCustomerId = null;
+      hideDetail();
+    } else if (!state.activeCustomerId || !filtered.some(r => r.customer_id === state.activeCustomerId)) {
+      state.activeCustomerId = filtered[0].customer_id;
+      showDetail(filtered[0]);
+      highlightActiveRow();
+    } else {
+      const active = filtered.find(r => r.customer_id === state.activeCustomerId);
+      if (active) {
+        showDetail(active);
+        highlightActiveRow();
+      }
+    }
+  }
+
+  function updateSpendFilterText(minSpendVal, maxSpendVal) {
+    if (!isNaN(minSpendVal) || !isNaN(maxSpendVal)) {
+      const minStr = !isNaN(minSpendVal) ? formatCurrency(minSpendVal) : "-";
+      const maxStr = !isNaN(maxSpendVal) ? formatCurrency(maxSpendVal) : "-";
+      els.spendFilterText.textContent = `${minStr} – ${maxStr}`;
+    } else {
+      els.spendFilterText.textContent = "none";
+    }
+  }
+
+  function renderTable() {
+    const tbody = els.tableBody;
+    tbody.innerHTML = "";
+
+    if (state.filtered.length === 0) {
+      els.emptyState.style.display = "block";
+      return;
+    } else {
+      els.emptyState.style.display = "none";
+    }
+
+    state.filtered.forEach(row => {
+      const tr = document.createElement("tr");
+      tr.dataset.id = row.customer_id;
+
+      const planClass = row.plan_type === "Prepaid" ? "plan-prepaid" : "plan-postpaid";
+
+      tr.innerHTML = `
+        <td>${row.customer_id}</td>
+        <td><span class="pill ${planClass}">${row.plan_type}</span></td>
+        <td>${row.device_brand}</td>
+        <td>${row.avg_data_usage_gb.toFixed(1)}</td>
+        <td>${formatPercentage(row.pct_video_usage)}</td>
+        <td>${row.avg_call_duration.toFixed(1)}</td>
+        <td>${row.sms_freq}</td>
+        <td>${formatCurrency(row.monthly_spend)}</td>
+        <td>${row.topup_freq}</td>
+        <td>${row.complaint_count}</td>
+        <td><span class="pill pill-offer">${row.target_offer}</span></td>
+      `;
+
+      tr.addEventListener("click", () => {
+        state.activeCustomerId = row.customer_id;
+        showDetail(row);
+        highlightActiveRow();
+      });
+
+      tbody.appendChild(tr);
+    });
+
+    highlightActiveRow();
+  }
+
+  function updateStats() {
+    const rows = state.filtered;
+    const n = rows.length;
+
+    els.statCustomers.textContent = n;
+
+    if (n === 0) {
+      els.statAvgSpend.textContent = "-";
+      els.statTopOffer.textContent = "-";
+      els.statAvgVideo.textContent = "-";
+      renderOfferBars({});
+      return;
+    }
+
+    const totalSpend = rows.reduce((acc, r) => acc + (r.monthly_spend || 0), 0);
+    const totalVideo = rows.reduce((acc, r) => acc + (r.pct_video_usage || 0), 0);
+
+    els.statAvgSpend.textContent = formatCurrency(totalSpend / n);
+    els.statAvgVideo.textContent = formatPercentage(totalVideo / n);
+
+    const offerCounts = {};
+    rows.forEach(r => {
+      offerCounts[r.target_offer] = (offerCounts[r.target_offer] || 0) + 1;
+    });
+
+    let topOffer = "-";
+    let maxCount = 0;
+    Object.entries(offerCounts).forEach(([offer, count]) => {
+      if (count > maxCount) {
+        maxCount = count;
+        topOffer = offer;
+      }
+    });
+    els.statTopOffer.textContent = topOffer;
+    renderOfferBars(offerCounts);
+  }
+
+  function renderOfferBars(offerCounts) {
+    els.offerBars.innerHTML = "";
+    const entries = Object.entries(offerCounts);
+    if (entries.length === 0) return;
+    const maxVal = Math.max(...entries.map(([_, count]) => count));
+    entries.forEach(([offer, count]) => {
+      const row = document.createElement("div");
+      row.className = "chart-bar-row";
+      const label = document.createElement("div");
+      label.textContent = `${offer} (${count})`;
+      const bar = document.createElement("div");
+      bar.className = "chart-bar";
+      const fill = document.createElement("div");
+      fill.className = "chart-bar-fill";
+      fill.style.width = ((count / maxVal) * 100).toFixed(0) + "%";
+      bar.appendChild(fill);
+      row.appendChild(label);
+      row.appendChild(bar);
+      els.offerBars.appendChild(row);
+    });
+  }
+
+  function showDetail(row) {
+    if (!row) return;
+    els.detailSubtitle.textContent = "Behavioral profile and next best offer for selected customer.";
+    els.detailContent.style.display = "block";
+
+    els.detailCustomerId.textContent = row.customer_id;
+    els.detailPlanType.innerHTML =
+      `<span class="pill ${row.plan_type === "Prepaid" ? "plan-prepaid" : "plan-postpaid"}">${row.plan_type}</span>`;
+    els.detailDeviceBrand.textContent = row.device_brand;
+    els.detailOffer.innerHTML = `<span class="pill pill-offer">${row.target_offer}</span>`;
+
+    els.detailDataUsage.innerHTML = `<strong>${row.avg_data_usage_gb.toFixed(1)}</strong> GB / month`;
+    els.detailVideoUsage.innerHTML = `<strong>${formatPercentage(row.pct_video_usage)}</strong> of data for video`;
+    els.detailCallDuration.innerHTML = `<strong>${row.avg_call_duration.toFixed(1)}</strong> min / month`;
+    els.detailSmsFreq.innerHTML = `<strong>${row.sms_freq}</strong> SMS / month`;
+    els.detailMonthlySpend.innerHTML = `<strong>${formatCurrency(row.monthly_spend)}</strong>`;
+    els.detailTopupFreq.innerHTML = `<strong>${row.topup_freq}</strong> top-ups / month`;
+    els.detailTravelScore.innerHTML = `<strong>${row.travel_score.toFixed(2)}</strong> (0–1)`;
+    els.detailComplaintCount.innerHTML = `<strong>${row.complaint_count}</strong> complaints`;
+  }
+
+  function hideDetail() {
+    els.detailSubtitle.textContent = "No customers available for the current filter.";
+    els.detailContent.style.display = "none";
+  }
+
+  function highlightActiveRow() {
+    const rows = els.tableBody.querySelectorAll("tr");
+    rows.forEach(tr => {
+      if (tr.dataset.id === state.activeCustomerId) {
+        tr.classList.add("active");
+      } else {
+        tr.classList.remove("active");
+      }
+    });
+  }
+
+  function resetFilters() {
+    els.searchId.value = "";
+    els.planType.value = "";
+    els.minSpend.value = "";
+    els.maxSpend.value = "";
+    applyFilters();
+  }
+
+  function initEvents() {
+    els.searchId.addEventListener("input", () => {
+      applyFilters();
+    });
+    els.planType.addEventListener("change", () => {
+      applyFilters();
+    });
+    els.minSpend.addEventListener("change", () => {
+      applyFilters();
+    });
+    els.maxSpend.addEventListener("change", () => {
+      applyFilters();
+    });
+    els.resetFilters.addEventListener("click", resetFilters);
+  }
+
+  function init() {
+    initEvents();
+    applyFilters();
+  }
+
+  init();
+</script>
+</body>
+</html>
